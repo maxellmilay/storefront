@@ -1,2 +1,4 @@
-# storefront
-A test repo for another app
+# Storefront
+
+
+A test repo for another incoming cool app
