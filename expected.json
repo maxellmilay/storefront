@@ -1,0 +1,273 @@
+{
+  "entryPoints": [
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/auth/signup",
+      "chain": ["requestId", "express.json", "validate", "signupHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/auth/login",
+      "chain": ["requestId", "express.json", "rateLimit", "validate", "loginHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/auth/password-reset",
+      "chain": ["requestId", "express.json", "rateLimit", "validate", "requestResetHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/auth/password-reset/confirm",
+      "chain": ["requestId", "express.json", "validate", "confirmResetHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/account",
+      "chain": ["requestId", "express.json", "requireAuth", "getAccountHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "PATCH",
+      "path": "/account",
+      "chain": ["requestId", "express.json", "requireAuth", "validate", "updateAccountHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/account/addresses",
+      "chain": ["requestId", "express.json", "requireAuth", "listAddressesHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/account/addresses",
+      "chain": ["requestId", "express.json", "requireAuth", "validate", "createAddressHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "DELETE",
+      "path": "/account/addresses/:addressId",
+      "chain": ["requestId", "express.json", "requireAuth", "deleteAddressHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/products",
+      "chain": ["requestId", "express.json", "optionalAuth", "validate", "listProductsHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/products/:productId",
+      "chain": ["requestId", "express.json", "optionalAuth", "getProductHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/products",
+      "chain": [
+        "requestId",
+        "express.json",
+        "optionalAuth",
+        "requireAuth",
+        "requireRole",
+        "validate",
+        "createProductHandler"
+      ],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "PATCH",
+      "path": "/products/:productId",
+      "chain": [
+        "requestId",
+        "express.json",
+        "optionalAuth",
+        "requireAuth",
+        "requireRole",
+        "validate",
+        "updateProductHandler"
+      ],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "DELETE",
+      "path": "/products/:productId",
+      "chain": ["requestId", "express.json", "optionalAuth", "requireAuth", "requireRole", "archiveProductHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "PATCH",
+      "path": "/products/:productId/stock",
+      "chain": [
+        "requestId",
+        "express.json",
+        "optionalAuth",
+        "requireAuth",
+        "requireRole",
+        "validate",
+        "adjustStockHandler"
+      ],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/categories",
+      "chain": ["requestId", "express.json", "listCategoriesHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/cart",
+      "chain": ["requestId", "express.json", "requireAuth", "getCartHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/cart/items",
+      "chain": ["requestId", "express.json", "requireAuth", "validate", "addItemHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "PATCH",
+      "path": "/cart/items/:itemId",
+      "chain": ["requestId", "express.json", "requireAuth", "validate", "updateItemHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "DELETE",
+      "path": "/cart/items/:itemId",
+      "chain": ["requestId", "express.json", "requireAuth", "removeItemHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/cart/coupon",
+      "chain": ["requestId", "express.json", "requireAuth", "validate", "applyCouponHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "DELETE",
+      "path": "/cart/coupon",
+      "chain": ["requestId", "express.json", "requireAuth", "removeCouponHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/orders",
+      "chain": ["requestId", "express.json", "requireAuth", "validate", "checkoutHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/orders",
+      "chain": ["requestId", "express.json", "requireAuth", "validate", "listOrdersHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/orders/:orderId",
+      "chain": ["requestId", "express.json", "requireAuth", "getOrderHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/orders/:orderId/cancel",
+      "chain": ["requestId", "express.json", "requireAuth", "cancelOrderHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/orders/:orderId/refunds",
+      "chain": ["requestId", "express.json", "requireAuth", "requireRole", "validate", "createRefundHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/webhooks/payments",
+      "chain": ["requestId", "express.raw", "verifyPaymentSignature", "paymentWebhookHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/admin/users",
+      "chain": ["requestId", "express.json", "requireAuth", "requireRole", "validate", "listUsersHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "PATCH",
+      "path": "/admin/users/:userId/role",
+      "chain": ["requestId", "express.json", "requireAuth", "requireRole", "validate", "changeRoleHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "POST",
+      "path": "/admin/coupons",
+      "chain": ["requestId", "express.json", "requireAuth", "requireRole", "validate", "createCouponHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/admin/reports/sales",
+      "chain": ["requestId", "express.json", "requireAuth", "requireRole", "validate", "salesReportHandler"],
+      "confidence": "static"
+    },
+    {
+      "kind": "job",
+      "trigger": "cron",
+      "schedule": "*/15 * * * *",
+      "chain": ["cancelUnpaidOrders"],
+      "confidence": "static"
+    },
+    {
+      "kind": "job",
+      "trigger": "cron",
+      "schedule": "0 3 * * *",
+      "chain": ["pruneAbandonedCarts"],
+      "confidence": "static"
+    },
+    {
+      "kind": "job",
+      "trigger": "queue",
+      "chain": ["processEmailJob"],
+      "confidence": "static"
+    }
+  ],
+  "issues": []
+}

@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum CouponKind {
+  PERCENT
+  FIXED
+}
+
+model User {
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  name                String
+  passwordHash        String
+  role                Role                 @default(CUSTOMER)
+  createdAt           DateTime             @default(now())
+  addresses           Address[]
+  cart                Cart?
+  orders              Order[]
+  refundsIssued       Refund[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  line1      String
+  line2      String?
+  city       String
+  postalCode String
+  country    String
+  createdAt  DateTime @default(now())
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  sku         String      @unique
+  name        String
+  description String?
+  priceCents  Int
+  stock       Int         @default(0)
+  categoryId  String?
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  archivedAt  DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+}
+
+model Cart {
+  id         String     @id @default(cuid())
+  userId     String     @unique
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  couponId   String?
+  coupon     Coupon?    @relation(fields: [couponId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  items      CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+
+  @@unique([cartId, productId])
+}
+
+model Coupon {
+  id               String     @id @default(cuid())
+  code             String     @unique
+  kind             CouponKind
+  amount           Int
+  minSubtotalCents Int        @default(0)
+  expiresAt        DateTime?
+  active           Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  carts            Cart[]
+  orders           Order[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  // A copy of the address at checkout, so later edits do not move a placed order.
+  shippingAddress Json
+  status          OrderStatus @default(PENDING)
+  couponId        String?
+  coupon          Coupon?     @relation(fields: [couponId], references: [id])
+  subtotalCents   Int
+  discountCents   Int
+  taxCents        Int
+  shippingCents   Int
+  totalCents      Int
+  paidAt          DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime    @default(now())
+  items           OrderItem[]
+  payments        Payment[]
+  refunds         Refund[]
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  name           String
+  unitPriceCents Int
+  quantity       Int
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id])
+  providerPaymentId String   @unique
+  amountCents       Int
+  createdAt         DateTime @default(now())
+}
+
+model Refund {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  amountCents Int
+  reason      String
+  issuedById  String
+  issuedBy    User     @relation(fields: [issuedById], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model WebhookEvent {
+  id         String   @id
+  type       String
+  receivedAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
