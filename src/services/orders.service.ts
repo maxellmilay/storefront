@@ -43,12 +43,14 @@ export async function placeOrder(userId: string, input: CheckoutInput) {
   if (cart.coupon && !isUsable(cart.coupon)) {
     throw new BadRequestError('The coupon on your cart has expired');
   }
+
+  const pricedLines = cartLines(cart);
   // Prices can drop after the coupon was applied, so check its minimum again.
   if (cart.coupon) {
-    assertMinimumMet(cart.coupon, subtotalOf(cartLines(cart)));
+    assertMinimumMet(cart.coupon, subtotalOf(pricedLines));
   }
 
-  const totals = computeTotals(cartLines(cart), cart.coupon);
+  const totals = computeTotals(pricedLines, cart.coupon);
   const lines = cart.items.map((item) => ({
     productId: item.productId,
     name: item.product.name,
