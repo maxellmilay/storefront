@@ -35,6 +35,16 @@ function assertCanHold(product: Product, quantity: number) {
   }
 }
 
+// The coupon minimum is checked when a coupon is applied, so it must be checked
+// again whenever the cart shrinks. Otherwise a shopper could apply the coupon,
+// then remove items and still get the discount.
+async function dropCouponIfBelowMinimum(userId: string) {
+  const cart = await findOrCreateCart(userId);
+  if (cart.coupon && subtotalOf(cartLines(cart)) < cart.coupon.minSubtotalCents) {
+    await setCartCoupon(cart.id, null);
+  }
+}
+
 export async function getCart(userId: string) {
   const cart = await findOrCreateCart(userId);
   const totals = computeTotals(cartLines(cart), cart.coupon);
@@ -76,6 +86,7 @@ export async function updateItem(userId: string, itemId: string, input: UpdateCa
   assertCanHold(item.product, input.quantity);
 
   await saveItemQuantity(item.cartId, item.productId, input.quantity);
+  await dropCouponIfBelowMinimum(userId);
   return getCart(userId);
 }
 
@@ -86,6 +97,7 @@ export async function removeItem(userId: string, itemId: string) {
   }
 
   await deleteCartItem(item.cartId, item.id);
+  await dropCouponIfBelowMinimum(userId);
   return getCart(userId);
 }
 
