@@ -10,9 +10,9 @@ import {
 } from '../repositories/orders.repository.js';
 import type { CheckoutInput, ListOrdersQuery } from '../schemas/order.schema.js';
 import { cartLines } from './cart.service.js';
-import { isUsable } from './coupons.service.js';
+import { assertMinimumMet, isUsable } from './coupons.service.js';
 import { reserveStock } from './inventory.service.js';
-import { computeTotals } from './pricing.service.js';
+import { computeTotals, subtotalOf } from './pricing.service.js';
 
 interface Viewer {
   id: string;
@@ -42,6 +42,10 @@ export async function placeOrder(userId: string, input: CheckoutInput) {
   }
   if (cart.coupon && !isUsable(cart.coupon)) {
     throw new BadRequestError('The coupon on your cart has expired');
+  }
+  // Prices can drop after the coupon was applied, so check its minimum again.
+  if (cart.coupon) {
+    assertMinimumMet(cart.coupon, subtotalOf(cartLines(cart)));
   }
 
   const totals = computeTotals(cartLines(cart), cart.coupon);
