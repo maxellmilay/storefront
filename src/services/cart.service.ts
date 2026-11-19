@@ -49,6 +49,11 @@ export async function getCart(userId: string) {
       quantity: item.quantity,
     })),
     coupon: cart.coupon?.code ?? null,
+    // Checkout refuses a coupon below its minimum, so warn the customer early.
+    couponWarning:
+      cart.coupon && totals.subtotalCents < cart.coupon.minSubtotalCents
+        ? `This coupon needs an order of at least ${formatCents(cart.coupon.minSubtotalCents)}`
+        : null,
     ...totals,
     total: formatCents(totals.totalCents),
   };
