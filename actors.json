@@ -1,0 +1,20 @@
+{
+  "anonymous": {
+    "headers": {}
+  },
+  "a customer": {
+    "headers": {
+      "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLWFuYSJ9.EPoI2SeL1S5YhrmS-ct4wVGQ9olrhCMVPRw-O13t3Ys"
+    }
+  },
+  "another customer": {
+    "headers": {
+      "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLWJlbiJ9.wUFAkgvC9ryS-2P7fQdM6kKjRm2MI0rVhvdjwoRGplc"
+    }
+  },
+  "a staff member": {
+    "headers": {
+      "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLXNhbSJ9.ZVr8FTltiUQ5pzKHUx1k4DzZNVvIVVYVna9QQDBWD8s"
+    }
+  }
+}

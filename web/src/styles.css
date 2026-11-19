@@ -1,0 +1,155 @@
+:root {
+  --bg: #fafaf9;
+  --fg: #1c1917;
+  --muted: #78716c;
+  --line: #e7e5e4;
+  --accent: #0f766e;
+  --error: #b91c1c;
+  font-family: system-ui, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+header {
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+}
+
+nav .brand {
+  font-weight: 700;
+  margin-right: auto;
+}
+
+nav .who {
+  color: var(--muted);
+}
+
+main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+a.button {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+input,
+select {
+  font: inherit;
+  padding: 0.3rem 0.4rem;
+}
+
+label {
+  display: block;
+  margin: 0.4rem 0;
+}
+
+label.choice {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.products,
+.lines {
+  list-style: none;
+  padding: 0;
+}
+
+.products li,
+.lines li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.lines label {
+  margin: 0;
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 0.2rem 2rem;
+}
+
+.totals dd {
+  margin: 0;
+  text-align: right;
+}
+
+fieldset {
+  margin: 1rem 0;
+  border: 1px solid var(--line);
+}
+
+details {
+  margin: 1rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+[role="alert"] {
+  color: var(--error);
+}
+
+.field-error {
+  display: block;
+  font-size: 0.9em;
+}
+
+[role="status"] {
+  color: var(--accent);
+}

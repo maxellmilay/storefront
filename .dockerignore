@@ -1,0 +1,8 @@
+node_modules
+dist
+web
+checks
+docs
+.git
+.env
+.env.*
