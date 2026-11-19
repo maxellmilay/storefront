@@ -12,12 +12,12 @@ Branch: `feat/web-frontend`, from `main`.
 
 | Path | What |
 |---|---|
-| `compose.yaml` | `db` (Postgres 17), `redis` (Redis 7), `api` (this repo's root), `web` (nginx). Only `web` publishes a port, `"80"`, with no host port, so Docker picks a free one. |
-| `Dockerfile` | The API image: `npm ci`, `prisma generate`; on start `prisma db push`, the seed, then `tsx src/server.ts`. The image doesn't run `tsc`, because `src/` doesn't typecheck against the current `@types/express` (route params are typed `string \| string[]`). That's a problem already in `src/`, left alone here. |
-| `prisma/seed.ts` | Resets and seeds the shop: categories, products, users, addresses, coupons. Each start is a new shop. |
+| `compose.yaml` | `main`'s stack (`api` on host port 4000, `postgres` with a volume, `redis`), plus `web` (nginx) on host port 8080 (`WEB_PORT`). Both `api` and `web` publish ports, so Neomata's Repository settings → Connection → Runs name `api` as the app service and `web` as the screens service. |
+| `Dockerfile` | `main`'s API image, which runs `tsx src/server.ts` because `src/` doesn't typecheck against the current `@types/express`. Its start command also runs the seed. |
+| `prisma/seed.ts` | `main`'s safe-to-rerun seed (admin, staff), extended with customers, addresses, categories, products and coupons. Everything is upserted under fixed ids, and nothing is deleted. |
 | `web/` | React 19 + Vite SPA, react-router `createBrowserRouter`, React Query, one `axios.create({ baseURL: "/api" })` client. Built in its Dockerfile and served by nginx. |
 | `web/nginx.conf` | `location /api/ { proxy_pass http://api:4000/; }` (the trailing `/` strips `/api`, so `/api/cart` reaches `/cart`; read by the engine's `screens/base-path.ts`), and `try_files` for the SPA. |
-| `actors.json` | `anonymous`, `a customer`, `another customer`, `a staff member`, each with `Authorization: Bearer <JWT>` for a seeded user with a fixed id, signed with the compose file's dev `JWT_SECRET` and no expiry. |
+| `actors.json` | `anonymous`, `a customer`, `another customer`, `a staff member`, `an admin`, each with `Authorization: Bearer <JWT>` for a seeded user with a fixed id, signed with the compose file's default `JWT_SECRET` and no expiry. |
 | `checks/` | Hand-written browser specs on the runner's `screen` fixture, importing `./automata/fixtures` like shop-web's. |
 
 The API's own code (`src/`) is unchanged; its routes keep their paths, so
@@ -54,7 +54,8 @@ Rules the engine reads:
 |---|---|---|---|
 | Ana, customer | ana@shop.test | ana-password | a customer |
 | Ben, customer | ben@shop.test | ben-password | another customer |
-| Sam, staff | sam@shop.test | sam-password | a staff member |
+| Store Staff | staff@storefront.test | staff-password-1 | a staff member |
+| Store Admin | admin@storefront.test | admin-password-1 | an admin |
 
 Ana and Ben each have one saved address. Products: six across two
 categories, one with stock 2 (for the stock error). Coupons: `SAVE10`
@@ -77,8 +78,7 @@ Each passing or failing check gets the `video` attachment from `screen`.
 ## Start
 
 ```bash
-docker compose up --build -d
-docker compose port web 80   # the host port Docker picked
+docker compose up --build -d   # shop on http://localhost:8080, API on :4000
 ```
 
 ## Not in scope

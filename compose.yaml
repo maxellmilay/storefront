@@ -1,53 +1,64 @@
-# The shop with its frontend, for running browser checks against it.
-# The secrets here are for this local stack only.
 services:
-  db:
-    image: postgres:17.6-alpine
+  api:
+    build: .
+    ports:
+      - "${PORT:-4000}:4000"
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://storefront:storefront@postgres:5432/storefront?schema=public
+      REDIS_URL: redis://redis:6379
+      # actors.json holds tokens signed with the default; change both together.
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-me}
+      PAYMENT_WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET:-dev-webhook-secret-change-me}
+      STORE_URL: ${STORE_URL:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Healthy only once `prisma db push` and the seed have run and the server
+    # answers, so `docker compose up --wait` returns with the tables in place.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/categories').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  # The React frontend, served by nginx, which proxies /api/ to the API with
+  # the prefix removed (web/nginx.conf). Two services publish ports, so
+  # Neomata's Repository settings → Connection → Runs name `api` as the app
+  # and `web` as the screens service.
+  web:
+    build: ./web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
     environment:
       POSTGRES_USER: storefront
       POSTGRES_PASSWORD: storefront
       POSTGRES_DB: storefront
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "storefront"]
-      interval: 2s
-      timeout: 2s
-      retries: 30
+      test: ["CMD-SHELL", "pg_isready -U storefront -d storefront"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   redis:
-    image: redis:7.4-alpine
+    image: redis:7-alpine
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 2s
-      timeout: 2s
-      retries: 30
-  api:
-    build: .
-    environment:
-      DATABASE_URL: postgresql://storefront:storefront@db:5432/storefront
-      REDIS_URL: redis://redis:6379
-      # actors.json holds tokens signed with this secret; change both together.
-      JWT_SECRET: storefront-dev-jwt-secret
-      PAYMENT_WEBHOOK_SECRET: storefront-dev-webhook-secret
-      PORT: "4000"
-    healthcheck:
-      test:
-        - CMD
-        - node
-        - -e
-        - "fetch('http://localhost:4000/categories').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
-      interval: 2s
-      timeout: 2s
-      retries: 60
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-  web:
-    build: ./web
-    # The only service that publishes a port, so a run takes it for the app.
-    # No host port: Docker picks a free one, so parallel runs never collide.
-    ports:
-      - "80"
-    depends_on:
-      api:
-        condition: service_healthy
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

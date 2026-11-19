@@ -6,3 +6,5 @@ docs
 .git
 .env
 .env.*
+!.env.example
+*.log
