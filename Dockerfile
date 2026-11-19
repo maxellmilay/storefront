@@ -19,5 +19,6 @@ COPY src ./src
 EXPOSE 4000
 # The app runs from source with tsx: `tsc` currently reports type errors on
 # req.params under @types/express 5. The repo has no migrations yet, so the
-# schema is synced with `prisma db push` before starting.
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npx tsx src/server.ts"]
+# schema is synced with `prisma db push` before starting. The seed is safe to
+# rerun, so each start makes sure the test accounts and the catalog exist.
+CMD ["sh", "-c", "npx prisma db push --skip-generate && npx tsx prisma/seed.ts && npx tsx src/server.ts"]
